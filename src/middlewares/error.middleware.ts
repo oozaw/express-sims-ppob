@@ -21,7 +21,7 @@ const errorMiddleware = (err: any, req: any, res: any, next: any) => {
          };
       });
 
-      WebResponse.error(res, 400, errors);
+      WebResponse.error(res, 400, 'Validation error', errors);
    } else {
       console.log("Error");
       WebResponse.error(res, 500, err.message);

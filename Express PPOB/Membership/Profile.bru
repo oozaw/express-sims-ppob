@@ -1,0 +1,19 @@
+meta {
+  name: Profile
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/profile
+  body: none
+  auth: bearer
+}
+
+headers {
+  : 
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJhcHB0ZXN0NEBlbWFpbC5jb20iLCJpYXQiOjE3NDQ5OTAwMTIsImV4cCI6MTc0NTAwNDQxMn0.stsnBWVX30IiC8edSvSWoukFZCiuv4K3TFyUYyG7_Vo
+}

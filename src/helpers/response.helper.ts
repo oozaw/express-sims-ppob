@@ -1,11 +1,10 @@
 import { Response } from "express";
-import * as http from "http";
 
 class WebResponse {
-   static success(res: Response, statusCode: number, data: any = null): void {
+   static success(res: Response, statusCode: number = 0, message: string = "Sukses", data: any = null): void {
       let response: any = {
-         status: http.STATUS_CODES[statusCode]?.toUpperCase(),
-         code: statusCode,
+         status: statusCode,
+         message: message,
       };
 
       if (data) {
@@ -25,10 +24,11 @@ class WebResponse {
       res.status(statusCode).json(response).end();
    }
 
-   static error(res: Response, statusCode: number, errors: any = null): void {
+   static error(res: Response, statusCode: number = 102, message: string = "Gagal", errors: any = null): void {
       let response: any = {
-         status: http.STATUS_CODES[statusCode]?.toUpperCase(),
-         code: statusCode,
+         status: statusCode,
+         message: message,
+         data: null,
       };
 
       if (errors) {
