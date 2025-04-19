@@ -16,3 +16,11 @@ body:json {
     "password": "password123"
   }
 }
+
+script:post-response {
+  if (res.status == 200) {
+    const token = res.getBody().data.token;
+    
+    bru.setEnvVar('access_token', token);
+  }
+}

@@ -14,7 +14,7 @@ export interface UserAttributes {
 }
 
 class User {
-   static async createUser(userData: Omit<UserAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<UserAttributes> {
+   async createUser(userData: Omit<UserAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<UserAttributes> {
       const connection = await pool.getConnection();
       await connection.beginTransaction();
       
@@ -49,7 +49,7 @@ class User {
       }
    }
 
-   static async updateUser(id: number, userData: Partial<UserAttributes>): Promise<UserAttributes | null> {
+   async updateUser(id: number, userData: Partial<UserAttributes>): Promise<UserAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
@@ -100,7 +100,7 @@ class User {
       }
    }
 
-   static async findByEmail(email: string): Promise<UserAttributes | null> {
+   async findByEmail(email: string): Promise<UserAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
@@ -116,7 +116,7 @@ class User {
       }
    }
 
-   static async findById(id: number): Promise<UserAttributes | null> {
+   async findById(id: number): Promise<UserAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
@@ -133,4 +133,4 @@ class User {
    }
 }
 
-export default User;
+export default new User();

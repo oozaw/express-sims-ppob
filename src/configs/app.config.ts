@@ -5,6 +5,7 @@ import { errorMiddleware } from "../middlewares/error.middleware";
 import { ResponseError } from "../responses/error.response";
 import authRouter from "../routes/auth.route";
 import userRouter from "../routes/user.route";
+import bannerRouter from "../routes/banner.route";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(
 
 // Routes
 app.use(authRouter);
+app.use(bannerRouter);
 app.use(userRouter);
 
 app.use((req, res, next) => {
