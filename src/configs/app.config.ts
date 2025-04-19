@@ -7,6 +7,7 @@ import authRouter from "../routes/auth.route";
 import userRouter from "../routes/user.route";
 import bannerRouter from "../routes/banner.route";
 import serviceRouter from "../routes/service.route";
+import balanceRouter from "../routes/balance.route";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(authRouter);
 app.use(bannerRouter);
 app.use(userRouter);
 app.use(serviceRouter);
+app.use(balanceRouter);
 
 app.use((req, res, next) => {
    const route = req.originalUrl;

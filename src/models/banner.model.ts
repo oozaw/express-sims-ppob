@@ -41,7 +41,7 @@ class Banner {
       } catch (error) {
          await connection.rollback();
          console.error('Error creating banner:', error);
-         throw new ResponseError('Error creating banner', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -93,7 +93,7 @@ class Banner {
       } catch (error) {
          await connection.rollback();
          console.error('Error updating banner:', error);
-         throw new ResponseError('Error updating banner', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -110,6 +110,9 @@ class Banner {
          
          const banners = rows as BannerAttributes[];
          return banners.length > 0 ? banners[0] : null;
+      } catch (error) {
+         console.error('Error fetching banner:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -121,6 +124,9 @@ class Banner {
       try {
          const [rows] = await connection.execute('SELECT * FROM banners ORDER BY created_at DESC');
          return rows as BannerAttributes[];
+      } catch (error) {
+         console.error('Error fetching all banners:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -146,7 +152,7 @@ class Banner {
       } catch (error) {
          await connection.rollback();
          console.error('Error deleting banner:', error);
-         throw new ResponseError('Error deleting banner', 500, error);
+         throw error;
       } finally {
          connection.release();
       }

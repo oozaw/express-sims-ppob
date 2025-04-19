@@ -42,8 +42,9 @@ class User {
 
          return users[0];
       } catch (error) {
+         await connection.rollback();
          console.error('Error creating user:', error);
-         throw new ResponseError('Error creating user', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -93,8 +94,9 @@ class User {
 
          return users[0];
       } catch (error) {
+         await connection.rollback();
          console.error('Error updating user:', error);
-         throw new ResponseError('Error updating user', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -111,6 +113,9 @@ class User {
          
          const users = rows as UserAttributes[];
          return users.length > 0 ? users[0] : null;
+      } catch (error) {
+         console.error('Error fetching user by email:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -127,6 +132,9 @@ class User {
          
          const users = rows as UserAttributes[];
          return users.length > 0 ? users[0] : null;
+      }  catch (error) {
+         console.error('Error fetching user by ID:', error);
+         throw error;
       } finally {
          connection.release();
       }

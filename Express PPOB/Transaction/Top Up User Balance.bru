@@ -1,0 +1,21 @@
+meta {
+  name: Top Up User Balance
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/topup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "top_up_amount": 100000
+  }
+}

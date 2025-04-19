@@ -42,7 +42,7 @@ class Service {
       } catch (error) {
          await connection.rollback();
          console.error('Error creating service:', error);
-         throw new ResponseError('Error creating service', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -94,7 +94,7 @@ class Service {
       } catch (error) {
          await connection.rollback();
          console.error('Error updating service:', error);
-         throw new ResponseError('Error updating service', 500, error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -111,6 +111,9 @@ class Service {
          
          const services = rows as ServiceAttributes[];
          return services.length > 0 ? services[0] : null;
+      } catch (error) {
+         console.error('Error fetching service by ID:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -127,6 +130,9 @@ class Service {
          
          const services = rows as ServiceAttributes[];
          return services.length > 0 ? services[0] : null;
+      } catch (error) {
+         console.error('Error fetching service by code:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -138,6 +144,9 @@ class Service {
       try {
          const [rows] = await connection.execute('SELECT * FROM services ORDER BY name ASC');
          return rows as ServiceAttributes[];
+      } catch (error) {
+         console.error('Error fetching all services:', error);
+         throw error;
       } finally {
          connection.release();
       }
@@ -163,7 +172,7 @@ class Service {
       } catch (error) {
          await connection.rollback();
          console.error('Error deleting service:', error);
-         throw new ResponseError('Error deleting service', 500, error);
+         throw error;
       } finally {
          connection.release();
       }

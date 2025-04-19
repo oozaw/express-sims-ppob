@@ -5,6 +5,7 @@ import authValidation from "../validations/auth.validation";
 import { ResponseError } from "../responses/error.response";
 import { LoginDto, RegisterDto } from "../dto/auth.dto";
 import UserModel from "../models/user.model";
+import BalanceModel from "../models/balance.model";
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
 const JWT_ACCESS_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || "4h";
@@ -68,6 +69,15 @@ class AuthService {
                profile_image: request.profile_image || null,
             }
          );
+
+         if (!user) {
+            throw new ResponseError("Error creating user", 500, "Error creating user");
+         }
+
+         const userBalance = await BalanceModel.createBalance(user.id, 0);
+         if (!userBalance) {
+            throw new ResponseError("Error creating user balance", 500, "Error creating user balance");
+         }
 
          return {
             id: user.id,

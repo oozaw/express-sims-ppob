@@ -1,0 +1,15 @@
+meta {
+  name: Get User Balance
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/balance
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
