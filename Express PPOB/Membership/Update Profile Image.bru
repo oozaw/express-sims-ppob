@@ -1,0 +1,26 @@
+meta {
+  name: Update Profile Image
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{base_url}}/profile/image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJhcHB0ZXN0NEBlbWFpbC5jb20iLCJpYXQiOjE3NDUwMjIzMjQsImV4cCI6MTc0NTAzNjcyNH0.q6vjqLQUQ6lR4p_-a-wA_bMcj2TH_uKZBigOTPwSNEM
+}
+
+body:json {
+  {
+    "first_name": "John",
+    "last_name": "Doe"
+  }
+}
+
+body:multipart-form {
+  file: @file(C:\Users\Wahyu Purnomo Ady\Pictures\Jujutsu Kaisen\f808b403cf077cc8f5f4e2e41a082305.jpg)
+}

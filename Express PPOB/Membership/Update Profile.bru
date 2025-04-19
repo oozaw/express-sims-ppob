@@ -1,11 +1,11 @@
 meta {
-  name: Update Profiel
+  name: Update Profile
   type: http
   seq: 4
 }
 
 put {
-  url: {{base_url}}/profile
+  url: {{base_url}}/profile/update
   body: json
   auth: bearer
 }
@@ -16,7 +16,7 @@ auth:bearer {
 
 body:json {
   {
-    "first_name": "John NN",
+    "first_name": "John",
     "last_name": "Doe"
   }
 }

@@ -131,8 +131,6 @@ class User {
          connection.release();
       }
    }
-
-   
 }
 
 export default User;

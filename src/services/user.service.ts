@@ -2,6 +2,9 @@ import { validate } from "../validations/index.validation";
 import { ResponseError } from "../responses/error.response";
 import { LoginDto, RegisterDto } from "../dto/auth.dto";
 import UserModel from "../models/user.model";
+import fs from "fs";
+import path from "path";
+import { File } from "buffer";
 
 const profile = async (userId: number) => {
    try {
@@ -46,7 +49,47 @@ const updateProfile = async (userId: number, request: Partial<RegisterDto>) => {
    }
 }
 
+const updateProfileImage = async (userId: number, imageFile: Express.Multer.File | undefined, baseUrl: string) => {
+   try {
+      if (!imageFile) {
+         throw new ResponseError("Image file is required", 400, "Image file is required");
+      }
+
+      const user = await UserModel.findById(userId);
+      if (!user) {
+         throw new ResponseError("User not found", 404, "User not found");
+      }
+
+      const fileName = `${userId}-${Date.now()}-${imageFile.originalname}`;
+      const filePath = path.join("images/profile", fileName);
+      const publicPath = path.join("public/uploads", filePath);
+      
+      if (!fs.existsSync("public/uploads/images/banners")) {
+         fs.mkdirSync("public/uploads/images/banners", { recursive: true });
+      }
+      fs.writeFileSync(publicPath, imageFile.buffer);
+
+      const fullPath = new URL(filePath, baseUrl).toString();
+      const updatedUser = await UserModel.updateUser(userId, { profile_image: fullPath });
+      if (!updatedUser) {
+         throw new ResponseError("User not found", 404, "User not found");
+      }
+
+      return {
+         email: updatedUser.email,
+         first_name: updatedUser.first_name,
+         last_name: updatedUser.last_name,
+         profile_image: updatedUser.profile_image,
+      }
+      
+   } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+   }
+}
+
 export default {
    profile,
    updateProfile,
+   updateProfileImage,
 }
