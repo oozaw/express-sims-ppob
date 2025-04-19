@@ -12,7 +12,7 @@ export interface BannerAttributes {
 }
 
 class Banner {
-   static async createBanner(bannerData: Omit<BannerAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<BannerAttributes> {
+   async createBanner(bannerData: Omit<BannerAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<BannerAttributes> {
       const connection = await pool.getConnection();
       await connection.beginTransaction();
       
@@ -47,7 +47,7 @@ class Banner {
       }
    }
 
-   static async updateBanner(id: number, bannerData: Partial<BannerAttributes>): Promise<BannerAttributes | null> {
+   async updateBanner(id: number, bannerData: Partial<BannerAttributes>): Promise<BannerAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
@@ -99,7 +99,7 @@ class Banner {
       }
    }
 
-   static async findById(id: number): Promise<BannerAttributes | null> {
+   async findById(id: number): Promise<BannerAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
@@ -115,7 +115,7 @@ class Banner {
       }
    }
 
-   static async findAll(): Promise<BannerAttributes[]> {
+   async findAll(): Promise<BannerAttributes[]> {
       const connection = await pool.getConnection();
       
       try {
@@ -126,7 +126,7 @@ class Banner {
       }
    }
 
-   static async deleteBanner(id: number): Promise<boolean> {
+   async deleteBanner(id: number): Promise<boolean> {
       const connection = await pool.getConnection();
       
       try {
@@ -153,4 +153,4 @@ class Banner {
    }
 }
 
-export default Banner;
+export default new Banner();

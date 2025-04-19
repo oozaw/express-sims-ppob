@@ -1,7 +1,7 @@
-import BannerModel from "../models/banner.model";
+import BannerModel, { BannerAttributes } from "../models/banner.model";
 
 class BannerService {
-   async getAllBanners(query: any): Promise<BannerModel[]> {
+   async getAllBanners(query: any): Promise<BannerAttributes[]> {
       try {
          const banners = await BannerModel.findAll();
          return banners;
