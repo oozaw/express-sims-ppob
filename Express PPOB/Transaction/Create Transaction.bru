@@ -1,0 +1,21 @@
+meta {
+  name: Create Transaction
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/transaction
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "service_code": "PLN"
+  }
+}

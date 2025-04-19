@@ -14,9 +14,9 @@ export interface UserAttributes {
 }
 
 class User {
-   async createUser(userData: Omit<UserAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<UserAttributes> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async createUser(userData: Omit<UserAttributes, 'id' | 'created_at' | 'updated_at'>, existingConnection?: any): Promise<UserAttributes> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
       
       try {
          const now = new Date();
@@ -38,23 +38,23 @@ class User {
             throw new ResponseError('User not found after creation', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return users[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error creating user:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
-   async updateUser(id: number, userData: Partial<UserAttributes>): Promise<UserAttributes | null> {
-      const connection = await pool.getConnection();
+   async updateUser(id: number, userData: Partial<UserAttributes>, existingConnection?: any): Promise<UserAttributes | null> {
+      const connection = existingConnection || await pool.getConnection();
       
       try {
-         await connection.beginTransaction();
+         if (!existingConnection) await connection.beginTransaction();
          const now = new Date();
 
         const updates: string[] = [];
@@ -90,15 +90,15 @@ class User {
             throw new ResponseError('User not found after update', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return users[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error updating user:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 

@@ -59,3 +59,17 @@ CREATE TABLE IF NOT EXISTS `transactions` (
    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
    FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE SET NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+INSERT INTO services (code, name, icon, tariff) VALUES
+('PAJAK', 'Pajak PBB', 'https://nutech-integrasi.app/dummy.jpg', 40000),
+('PLN', 'Listrik', 'https://nutech-integrasi.app/dummy.jpg', 10000),
+('PDAM', 'PDAM Berlangganan', 'https://nutech-integrasi.app/dummy.jpg', 40000),
+('PULSA', 'Pulsa', 'https://nutech-integrasi.app/dummy.jpg', 40000),
+('PGN', 'PGN Berlangganan', 'https://nutech-integrasi.app/dummy.jpg', 50000),
+('MUSIK', 'Musik Berlangganan', 'https://nutech-integrasi.app/dummy.jpg', 50000),
+('TV', 'TV Berlangganan', 'https://nutech-integrasi.app/dummy.jpg', 50000),
+('PAKET_DATA', 'Paket data', 'https://nutech-integrasi.app/dummy.jpg', 50000),
+('VOUCHER_GAME', 'Voucher Game', 'https://nutech-integrasi.app/dummy.jpg', 100000),
+('VOUCHER_MAKANAN', 'Voucher Makanan', 'https://nutech-integrasi.app/dummy.jpg', 100000),
+('QURBAN', 'Qurban', 'https://nutech-integrasi.app/dummy.jpg', 200000),
+('ZAKAT', 'Zakat', 'https://nutech-integrasi.app/dummy.jpg', 300000);

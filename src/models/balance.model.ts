@@ -11,9 +11,9 @@ export interface BalanceAttributes {
 }
 
 class Balance {
-   async createBalance(userId: number, initialBalance: number): Promise<BalanceAttributes> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async createBalance(userId: number, initialBalance: number, existingConnection?: any): Promise<BalanceAttributes> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
 
       try {
          const now = new Date();
@@ -34,15 +34,15 @@ class Balance {
             throw new ResponseError('Balance not found after creation', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return balances[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error creating balance:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
@@ -64,9 +64,9 @@ class Balance {
       }
    }
 
-   async updateBalance(userId: number, newBalance: number): Promise<BalanceAttributes | null> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async updateBalance(userId: number, newBalance: number, existingConnection?: any): Promise<BalanceAttributes | null> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
       
       try {
          const now = new Date();
@@ -89,15 +89,15 @@ class Balance {
             throw new ResponseError('Balance not found after update', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return balances.length > 0 ? balances[0] : null;
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error updating balance:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 }

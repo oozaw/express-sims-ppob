@@ -12,9 +12,9 @@ export interface BannerAttributes {
 }
 
 class Banner {
-   async createBanner(bannerData: Omit<BannerAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<BannerAttributes> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async createBanner(bannerData: Omit<BannerAttributes, 'id' | 'created_at' | 'updated_at'>, existingConnection?: any): Promise<BannerAttributes> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
       
       try {
          const now = new Date();
@@ -35,23 +35,23 @@ class Banner {
             throw new ResponseError('Banner not found after creation', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return banners[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error creating banner:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
-   async updateBanner(id: number, bannerData: Partial<BannerAttributes>): Promise<BannerAttributes | null> {
+   async updateBanner(id: number, bannerData: Partial<BannerAttributes>, existingConnection?: any): Promise<BannerAttributes | null> {
       const connection = await pool.getConnection();
       
       try {
-         await connection.beginTransaction();
+         if (!existingConnection) await connection.beginTransaction();
          const now = new Date();
 
          const updates: string[] = [];
@@ -87,15 +87,15 @@ class Banner {
             throw new ResponseError('Banner not found after update', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return banners[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error updating banner:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
@@ -132,11 +132,11 @@ class Banner {
       }
    }
 
-   async deleteBanner(id: number): Promise<boolean> {
+   async deleteBanner(id: number, existingConnection?: any): Promise<boolean> {
       const connection = await pool.getConnection();
       
       try {
-         await connection.beginTransaction();
+         if (!existingConnection) await connection.beginTransaction();
          
          const [result] = await connection.execute(
             'DELETE FROM banners WHERE id = ?',
@@ -147,14 +147,14 @@ class Banner {
             throw new ResponseError('Banner not found', 404);
          }
          
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
          return true;
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error deleting banner:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 }

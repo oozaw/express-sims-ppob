@@ -6,6 +6,7 @@ import { ResponseError } from "../responses/error.response";
 import { LoginDto, RegisterDto } from "../dto/auth.dto";
 import UserModel from "../models/user.model";
 import BalanceModel from "../models/balance.model";
+import pool from "../configs/db.config";
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET as string;
 const JWT_ACCESS_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || "4h";
@@ -51,33 +52,37 @@ class AuthService {
 
    async register(request: RegisterDto) {
       validate(authValidation.registerValidation, request);
+      const connection = await pool.getConnection();
 
       try {
-         const existingUser = await UserModel.findByEmail(request.email);
+         await connection.beginTransaction();
 
+         const existingUser = await UserModel.findByEmail(request.email);
          if (existingUser) {
             throw new ResponseError("User already exists", 400, "User already exists");
          }
 
          const password = await bcrypt.hash(request.password, 10);
-         
          const user = await UserModel.createUser({
                email: request.email,
                password: password,
                first_name: request.first_name,
                last_name: request.last_name || null,
                profile_image: request.profile_image || null,
-            }
+            }, 
+            connection
          );
 
          if (!user) {
             throw new ResponseError("Error creating user", 500, "Error creating user");
          }
 
-         const userBalance = await BalanceModel.createBalance(user.id, 0);
+         const userBalance = await BalanceModel.createBalance(user.id, 0, connection);
          if (!userBalance) {
             throw new ResponseError("Error creating user balance", 500, "Error creating user balance");
          }
+
+         await connection.commit();
 
          return {
             id: user.id,
@@ -89,8 +94,11 @@ class AuthService {
             updated_at: user.updated_at,
          }
       } catch (error) {
+         await connection.rollback();
          console.error("Error during registration:", error);
          throw error;
+      } finally {
+         connection.release();
       }
    }
 }

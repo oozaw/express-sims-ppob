@@ -1,8 +1,8 @@
-export interface TopUpDto {
-   service_id?: number;
+export interface CreateTransactionDto {
+   service_code: string;
    type?: string;
    description?: string;
    status?: string;
-   top_up_amount: number;
+   total?: number;
    discount?: number;
 }

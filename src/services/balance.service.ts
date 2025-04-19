@@ -1,3 +1,4 @@
+import pool from "../configs/db.config";
 import { TopUpDto } from "../dto/top-up.dto";
 import BalanceModel, { BalanceAttributes } from "../models/balance.model";
 import transactionModel from "../models/transaction.model";
@@ -22,15 +23,18 @@ class BalanceService {
 
    async topUpBalance(userId: number, request: TopUpDto): Promise<Partial<BalanceAttributes> | null> {
       validate(balanceValidation.topUpValidation, request);
+      const connection = await pool.getConnection();
 
       try {
+         await connection.beginTransaction();
+
          const balance = await BalanceModel.getBalance(userId);
          if (!balance) {
             throw new ResponseError("Balance not found", 404, "Balance not found");
          }
 
          const newBalance = Number(balance.balance) + Number(request.top_up_amount);
-         const updatedBalance = await BalanceModel.updateBalance(userId, newBalance);
+         const updatedBalance = await BalanceModel.updateBalance(userId, newBalance, connection);
          if (!updatedBalance) {
             throw new ResponseError("Balance not found", 404, "Balance not found");
          }
@@ -46,12 +50,17 @@ class BalanceService {
             grand_total: request.top_up_amount - (request.discount || 0),
             status: "completed",
          }
-         await transactionModel.createTransaction(transactionData);
+         await transactionModel.createTransaction(transactionData, connection);
+
+         await connection.commit();
 
          return updatedBalance;
       } catch (error) {
+         await connection.rollback();
          console.error("Error topping up balance:", error);
          throw error;
+      } finally {
+         connection.release();
       }
    }
 }

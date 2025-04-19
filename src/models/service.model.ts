@@ -13,9 +13,9 @@ export interface ServiceAttributes {
 }
 
 class Service {
-   async createService(serviceData: Omit<ServiceAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceAttributes> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async createService(serviceData: Omit<ServiceAttributes, 'id' | 'created_at' | 'updated_at'>, existingConnection?: any): Promise<ServiceAttributes> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
       
       try {
          const now = new Date();
@@ -36,23 +36,23 @@ class Service {
             throw new ResponseError('Service not found after creation', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return services[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error creating service:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
-   async updateService(id: number, serviceData: Partial<ServiceAttributes>): Promise<ServiceAttributes | null> {
-      const connection = await pool.getConnection();
+   async updateService(id: number, serviceData: Partial<ServiceAttributes>, existingConnection?: any): Promise<ServiceAttributes | null> {
+      const connection = existingConnection || await pool.getConnection();
       
       try {
-         await connection.beginTransaction();
+         if (!existingConnection) await connection.beginTransaction();
          const now = new Date();
 
          const updates: string[] = [];
@@ -88,15 +88,15 @@ class Service {
             throw new ResponseError('Service not found after update', 404);
          }
 
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
 
          return services[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error updating service:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 
@@ -152,11 +152,11 @@ class Service {
       }
    }
 
-   async deleteService(id: number): Promise<boolean> {
-      const connection = await pool.getConnection();
+   async deleteService(id: number, existingConnection?: any): Promise<boolean> {
+      const connection = existingConnection ?? await pool.getConnection();
       
       try {
-         await connection.beginTransaction();
+         if (!existingConnection) await connection.beginTransaction();
          
          const [result] = await connection.execute(
             'DELETE FROM services WHERE id = ?',
@@ -167,14 +167,14 @@ class Service {
             throw new ResponseError('Service not found', 404);
          }
          
-         await connection.commit();
+         if (!existingConnection) await connection.commit();
          return true;
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error deleting service:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 }

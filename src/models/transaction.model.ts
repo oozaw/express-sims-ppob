@@ -1,10 +1,12 @@
 import { ResultSetHeader } from "mysql2";
 import { ResponseError } from "../responses/error.response";
 import pool from "../configs/db.config";
+import { ServiceAttributes } from "./service.model";
 
 export interface TransactionAttributes {
    id: number;
    user_id: number;
+   service_id?: number | null;
    type: string;
    description: string;
    status: string;
@@ -13,6 +15,8 @@ export interface TransactionAttributes {
    grand_total: number;
    created_at: Date;
    updated_at: Date;
+
+   service?: ServiceAttributes | null;
 }
 
 class Transaction {
@@ -33,8 +37,18 @@ class Transaction {
          const lastTransIdParts = lastTransactionId.toString().split('-')[1];
          const transactionCount = lastTransIdParts ? parseInt(lastTransIdParts) + 1 : 1;
          const transactionCountStr = String(transactionCount).padStart(4, '0');
+         let id = `INV${day}${month}${year}-${transactionCountStr}`;
          
-         return `INV${day}${month}${year}-${transactionCountStr}`;
+         const [rows] = await connection.execute(
+            'SELECT * FROM transactions WHERE id = ?',
+            [id]
+         );
+         const transactions = rows as TransactionAttributes[];
+         if (transactions.length > 0) {
+            id = `INV${day}${month}${year}-${String(transactionCount + 1).padStart(4, '0')}`;
+         }
+
+         return id;
       } catch (error) {
          console.error('Error generating transaction ID:', error);
          throw error;
@@ -43,39 +57,53 @@ class Transaction {
       }
    }
 
-   async createTransaction(transactionData: Omit<TransactionAttributes, 'id' | 'created_at' | 'updated_at'>): Promise<TransactionAttributes> {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+   async createTransaction(transactionData: Omit<TransactionAttributes, 'id' | 'created_at' | 'updated_at'>, existingConnection?: any): Promise<TransactionAttributes> {
+      const connection = existingConnection || await pool.getConnection();
+      if (!existingConnection) await connection.beginTransaction();
 
       try {
          const now = new Date();
          const transactionId = await this.generateId();
 
          const [result] = await connection.execute(
-            `INSERT INTO transactions (id, user_id, type, description, status, total, discount, grand_total, created_at, updated_at) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [transactionId, transactionData.user_id, transactionData.type, transactionData.description, transactionData.status, transactionData.total, transactionData.discount, transactionData.grand_total, now, now]
+            `INSERT INTO transactions (id, user_id, service_id, type, description, status, total, discount, grand_total, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [transactionId, transactionData.user_id, transactionData.service_id, transactionData.type, transactionData.description, transactionData.status, transactionData.total, transactionData.discount, transactionData.grand_total, now, now]
          ) as [ResultSetHeader, any];
 
          const [rows] = await connection.execute(
             'SELECT * FROM transactions WHERE id = ?',
-            [result.insertId]
+            [transactionId]
          );
          const transactions = rows as TransactionAttributes[];
+         console.log("🚀 ~ Transaction ~ createTransaction ~ transactions:", transactions)
 
          if (transactions.length === 0) {
             throw new ResponseError('Transaction not found after creation', 404);
          }
 
-         await connection.commit();
+         // get the service if not null
+         if (transactionData.service_id) {
+            const [serviceRows] = await connection.execute(
+               'SELECT * FROM services WHERE id = ?',
+               [transactionData.service_id]
+            );
+            const services = serviceRows as any[];
+            if (services.length === 0) {
+               throw new ResponseError('Service not found', 404);
+            }
+            transactions[0].service = services[0];
+         }
+
+         if (!existingConnection)await connection.commit();
 
          return transactions[0];
       } catch (error) {
-         await connection.rollback();
+         if (!existingConnection) await connection.rollback();
          console.error('Error creating transaction:', error);
          throw error;
       } finally {
-         connection.release();
+         if (!existingConnection) connection.release();
       }
    }
 }
