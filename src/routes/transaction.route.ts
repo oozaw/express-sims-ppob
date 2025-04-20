@@ -6,5 +6,6 @@ const transactionRouter = express.Router();
 const endpoint = "/transaction";
 
 transactionRouter.post(`${endpoint}`, authMiddleware, transactionController.createTransaction);
+transactionRouter.get(`${endpoint}/history`, authMiddleware, transactionController.transactionHistory);
 
 export default transactionRouter;

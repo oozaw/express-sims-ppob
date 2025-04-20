@@ -65,6 +65,36 @@ class TransactionService {
          connection.release();
       }
    }
+
+   async transactionHistory(userId: number, query: any) {
+      try {
+         const page = query.page ? Number(query.page) : 1;
+         const limit = query.limit ? Number(query.limit) : 10;
+         const additionalQuery = {
+            limit: limit,
+            offset: Number((page - 1) * limit),
+            orderBy: query.orderBy ? query.orderBy : "created_at",
+            order: query.order ? query.order : "DESC",
+            search: query.search ? query.search : null,
+         }
+         console.log("🚀 ~ TransactionService ~ transactionHistory ~ additionalQuery:", additionalQuery)
+
+         const transactions = await TransactionModel.getTransactionByUserId(userId, additionalQuery);
+         if (!transactions) {
+            throw new ResponseError("Transaction not found", 404, "Transaction not found");
+         }
+
+         return {
+            page: page,
+            limit: limit,
+            offset: Number((page - 1) * limit),
+            records: transactions,
+         };
+      } catch (error) {
+         console.error("Error fetching transaction history:", error);
+         throw error;
+      }
+   }
 }
 
 export default new TransactionService();

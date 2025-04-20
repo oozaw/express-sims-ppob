@@ -76,7 +76,6 @@ class Transaction {
             [transactionId]
          );
          const transactions = rows as TransactionAttributes[];
-         console.log("🚀 ~ Transaction ~ createTransaction ~ transactions:", transactions)
 
          if (transactions.length === 0) {
             throw new ResponseError('Transaction not found after creation', 404);
@@ -104,6 +103,30 @@ class Transaction {
          throw error;
       } finally {
          if (!existingConnection) connection.release();
+      }
+   }
+
+   async getTransactionByUserId(userId: number, query?: any): Promise<TransactionAttributes[]> {
+      const allowedColumns = ['created_at', 'grand_total'];
+      const allowedOrders = ['ASC', 'DESC'];
+      const connection = await pool.getConnection();
+
+      try {
+         if (!allowedColumns.includes(query?.orderBy)) query.orderBy = 'created_at';
+         if (!allowedOrders.includes(query?.order)) query.order = 'DESC';
+
+         const [rows] = await connection.execute(
+            `SELECT * FROM transactions WHERE user_id = ? ORDER BY ${query.orderBy} ${query.order} LIMIT ? OFFSET ?`,
+            [userId, query?.limit || 10, query?.offset || 0]
+         );
+         const transactions = rows as TransactionAttributes[];
+
+         return transactions;
+      } catch (error) {
+         console.error('Error fetching transactions:', error);
+         throw error;
+      } finally {
+         connection.release();
       }
    }
 }

@@ -24,6 +24,33 @@ class TransactionController {
          next(err);
       }
    }
+
+   async transactionHistory(req: Request, res: Response, next: NextFunction) {
+      try {
+         const user = req.user;
+         if (!user) {
+            return WebResponse.error(res, 401, "Unauthorized");
+         }
+
+         const result = await transactionService.transactionHistory(user.id, req.query);
+
+         const returnedData = {
+            ...result,
+            records: result.records.map((item) => {
+               return {
+                  invoice_number: item.id,
+                  transaction_type: item.type,
+                  description: item.description,
+                  total_amount: item.grand_total,
+                  created_on: item.created_at,
+               };
+            })
+         }
+         WebResponse.success(res, 200, "Get History Berhasil", returnedData);
+      } catch (err) {
+         next(err);
+      }
+   }
 }
 
 export default new TransactionController();
