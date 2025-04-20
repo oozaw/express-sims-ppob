@@ -77,7 +77,6 @@ class TransactionService {
             order: query.order ? query.order : "DESC",
             search: query.search ? query.search : null,
          }
-         console.log("🚀 ~ TransactionService ~ transactionHistory ~ additionalQuery:", additionalQuery)
 
          const transactions = await TransactionModel.getTransactionByUserId(userId, additionalQuery);
          if (!transactions) {

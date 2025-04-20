@@ -7,7 +7,15 @@ class BannerController {
       try {
          const result = await bannerService.getAllBanners(req.query);
          
-         WebResponse.success(res, 200, "Sukses", result);
+         const returnedData = result.map((item) => {
+            return {
+               // id: item.id,
+               banner_name: item.name,
+               banner_image: item.image_url,
+               description: item.description,
+            }
+         });
+         WebResponse.success(res, 200, "Sukses", returnedData);
       } catch (err) {
          next(err);
       }
