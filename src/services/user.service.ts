@@ -64,8 +64,8 @@ class UserService {
          const filePath = path.join("images/profile", fileName);
          const publicPath = path.join("public/uploads", filePath);
          
-         if (!fs.existsSync("public/uploads/images/banners")) {
-            fs.mkdirSync("public/uploads/images/banners", { recursive: true });
+         if (!fs.existsSync("public/uploads/images/profile")) {
+            fs.mkdirSync("public/uploads/images/profile", { recursive: true });
          }
          fs.writeFileSync(publicPath, imageFile.buffer);
 
