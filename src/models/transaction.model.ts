@@ -114,10 +114,13 @@ class Transaction {
       try {
          if (!allowedColumns.includes(query?.orderBy)) query.orderBy = 'created_at';
          if (!allowedOrders.includes(query?.order)) query.order = 'DESC';
+         let { limit, offset } = query;
+         limit = limit.toString() || '10';
+         offset = offset.toString() || '0';
 
          const [rows] = await connection.execute(
             `SELECT * FROM transactions WHERE user_id = ? ORDER BY ${query.orderBy} ${query.order} LIMIT ? OFFSET ?`,
-            [userId, query?.limit || 10, query?.offset || 0]
+            [userId, limit, offset]
          );
          const transactions = rows as TransactionAttributes[];
 
